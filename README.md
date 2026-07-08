@@ -46,6 +46,12 @@ Without forecasting, these challenges can lead to increased costs and reduced cu
 - Revenue forecasting
 - Product demand forecasting
 - Confidence interval visualization
+
+## 🏗️ System Architecture
+
+<p align="center">
+<img src="diagrams/system diagram.png" width="900">
+</p>
 - Weekly & yearly seasonality detection
 - Interactive Plotly charts
 
