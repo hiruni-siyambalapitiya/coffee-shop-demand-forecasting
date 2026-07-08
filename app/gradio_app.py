@@ -1,0 +1,182 @@
+# -*- coding: utf-8 -*-
+"""cafe_demand_forecast.ipynb
+
+
+
+Original file is located at
+    https://colab.research.google.com/drive/11QlX-OwjDRQW8s7prRNLE4JOAXjeiISk
+
+dependencies
+"""
+
+!pip install gradio prophet plotly pandas numpy
+
+import pandas as pd
+import numpy as np
+from prophet import Prophet
+import plotly.graph_objects as go
+import gradio as gr
+import os
+
+# -----------------------------------------------------------------
+# 1. ESTABLISH FILE PATHS
+# -----------------------------------------------------------------
+# Tip: Adjust this path to match your exact Google Drive setup
+drive_folder = '/content/drive/MyDrive/Coffee_Project/'
+file_path = os.path.join(drive_folder, 'cafe_pos_transactions.csv')
+
+# Fallback mechanism: If drive isn't connected, read from local Colab workspace upload area
+if not os.path.exists(file_path):
+    file_path = 'cafe_pos_transactions.csv'
+
+print(f"🔄 Reading database entries from: {file_path}")
+raw_df = pd.read_csv(file_path)
+
+# Extract simple daily date component out of fine Timestamps
+raw_df['Date'] = pd.to_datetime(raw_df['Timestamp']).dt.date
+
+# Fetch list of unique menu items dynamically for our UI dropdown selection
+available_items = ["Total Store Revenue ($)"] + sorted(raw_df['Item_Name'].unique().tolist())
+
+# -----------------------------------------------------------------
+# 2. INTERACTIVE FORECAST ENGINE CORE LOGIC
+# -----------------------------------------------------------------
+def generate_cafe_forecast(target_selection, forecast_days):
+
+    # Branching logic: Calculate Total Shop Dollars vs Item Quantity Volume
+    if target_selection == "Total Store Revenue ($)":
+        # Group raw transactions into total daily revenue sums
+        grouped_df = raw_df.groupby('Date')['Line_Total_USD'].sum().reset_index()
+        grouped_df.columns = ['ds', 'y']
+        yaxis_label = "Gross Daily Sales ($)"
+        line_color = '#A0522D'  # Deep Sienna/Latte Brown
+        fill_color = 'rgba(160, 82, 45, 0.15)'
+    else:
+        # Filter rows for the selected item and sum the total quantity sold per day
+        item_df = raw_df[raw_df['Item_Name'] == target_selection]
+        grouped_df = item_df.groupby('Date')['Quantity'].sum().reset_index()
+        grouped_df.columns = ['ds', 'y']
+        yaxis_label = f"Daily Units Sold ({target_selection})"
+        line_color = '#4A2C11'  # Espresso Brown
+        fill_color = 'rgba(74, 44, 17, 0.15)'
+
+    # Ensure the date format matches what Prophet expects
+    grouped_df['ds'] = pd.to_datetime(grouped_df['ds'])
+
+    # Initialize and train Meta Prophet Machine Learning Model
+    # For a local retail business, we leave weekly and yearly seasonalities active to catch calendar shifts
+    model = Prophet(daily_seasonality=False, weekly_seasonality=True, yearly_seasonality=True)
+    model.fit(grouped_df)
+
+    # Generate the future timeline matrix
+    future = model.make_future_dataframe(periods=int(forecast_days), freq='D')
+    forecast = model.predict(future)
+
+    # -------------------------------------------------------------
+    # 3. BUILD INTERACTIVE GRAPH PLOT
+    # -------------------------------------------------------------
+    fig = go.Figure()
+
+    # Trace 1: Shaded Uncertainty Safety Bounds (Helps map worst/best-case staffing and stock margins)
+    fig.add_trace(go.Scatter(
+        x=pd.concat([forecast['ds'], forecast['ds'].iloc[::-1]]),
+        y=pd.concat([forecast['yhat_upper'], forecast['yhat_lower'].iloc[::-1]]),
+        fill='toself',
+        fillcolor=fill_color,
+        line=dict(color='rgba(255,255,255,0)'),
+        hoverinfo="skip",
+        name='AI Stock Safety Margin'
+    ))
+
+    # Trace 2: Historical Real Register Records
+    fig.add_trace(go.Scatter(
+        x=grouped_df['ds'], y=grouped_df['y'],
+        mode='markers',
+        marker=dict(color='black', size=4, opacity=0.6),
+        name='Historical Store Records'
+    ))
+
+    # Trace 3: AI Predictive Midpoint Target
+    fig.add_trace(go.Scatter(
+        x=forecast['ds'], y=forecast['yhat'],
+        mode='lines',
+        line=dict(color=line_color, width=2.5),
+        name='AI Expected Baseline'
+    ))
+
+    # Polish layouts to professional UI standard
+    fig.update_layout(
+        title=f"AI Forecasting Model Matrix — Tracking: {target_selection}",
+        xaxis_title="Date Timeline",
+        yaxis_title=yaxis_label,
+        template="plotly_white",
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+
+    return fig
+
+# -----------------------------------------------------------------
+# 4. SPIN UP THE GRADIO APPLICATION LAYOUT FRAME
+# -----------------------------------------------------------------
+print("🚀 Launching Coffee Shop Analytics App Frame...")
+app = gr.Interface(
+    fn=generate_cafe_forecast,
+    inputs=[
+        gr.Dropdown(
+            choices=available_items,
+            value="Total Store Revenue ($)",
+            label="Select Business Target Metric"
+        ),
+        gr.Slider(
+            minimum=7,
+            maximum=60,
+            value=14,
+            step=1,
+            label="Prediction Horizon (Days into the Future)"
+        )
+    ],
+    outputs=gr.Plot(label="Interactive Forecast Visualizer"),
+    title="☕ Coffee Shop Operations & Demand Optimization Dashboard",
+    description="This operational machine learning model analyzes itemized POS ticket streams to accurately isolate upcoming store trends, weekly cycle runs, and bulk stock ordering numbers.",
+    theme="soft"
+)
+
+app.launch(inline=True, debug=True)
+
+"""### Weekly Sales Analysis"""
+
+# Ensure 'Date' column is datetime type for proper weekly grouping
+raw_df['Date'] = pd.to_datetime(raw_df['Date'])
+
+# Group by week and sum 'Line_Total_USD'
+weekly_sales = raw_df.groupby(pd.Grouper(key='Date', freq='W'))['Line_Total_USD'].sum().reset_index()
+weekly_sales.columns = ['Week_Start_Date', 'Total_Weekly_Sales']
+
+print("Weekly Sales Data:")
+display(weekly_sales.head())
+
+# Plotting the weekly sales
+fig_weekly = go.Figure()
+
+fig_weekly.add_trace(go.Scatter(
+    x=weekly_sales['Week_Start_Date'],
+    y=weekly_sales['Total_Weekly_Sales'],
+    mode='lines+markers',
+    line=dict(color='#2E8B57', width=2),
+    marker=dict(size=6, color='#2E8B57'),
+    name='Total Weekly Sales'
+))
+
+fig_weekly.update_layout(
+    title="Total Weekly Sales Over Time",
+    xaxis_title="Week Start Date",
+    yaxis_title="Total Weekly Sales ($)",
+    template="plotly_white",
+    hovermode="x unified"
+)
+
+fig_weekly.show()
+
+from google.colab import drive
+drive.mount('/content/drive')
