@@ -56,4 +56,10 @@ Without forecasting, these challenges can lead to increased costs and reduced cu
 <img src="diagrams/system diagram.png" width="900">
 </p>
 
+## 🔄 Project Workflow
+
+<p align="center">
+<img src="diagrams/work-flow diagram.png" width="900">
+</p>
+
   
