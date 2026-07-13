@@ -62,4 +62,15 @@ Without forecasting, these challenges can lead to increased costs and reduced cu
 <img src="diagrams/work-flow diagram.png" width="900">
 </p>
 
+## 👤 Use Case Diagram
+
+<p align="center">
+<img src="diagrams/usecase-management system.png" width="900">
+</p>
+
+## 🗄️ Entity Relationship Diagram
+
+<p align="center">
+<img src="diagrams/ER-Diagram.png" width="900">
+</p>
   
