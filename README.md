@@ -28,6 +28,50 @@ Coffee shops often face:
 - Revenue fluctuations
 - Difficult staff scheduling
 
+  ## 🎨 UI/UX Prototype
+
+The project also includes a customer-facing Coffee Shop Management System
+UI/UX prototype designed using **Balsamiq Wireframes**.
+
+The prototype focuses on the customer ordering journey, from browsing the
+coffee shop menu to placing and tracking an order.
+
+### 📱 Main Screens
+
+The prototype includes:
+
+- Home
+- Menu
+- Product Details
+- Shopping Cart
+- Checkout
+- Review & Place Order
+- Order Confirmation
+- Order Tracking
+- My Orders
+- Register
+- My Profile
+- Edit Profile
+
+### 🔄 Customer Ordering Flow
+
+```text
+Home
+  ↓
+Menu
+  ↓
+Product Details
+  ↓
+Shopping Cart
+  ↓
+Checkout
+  ↓
+Review & Place Order
+  ↓
+Order Confirmation
+  ↓
+Order Tracking
+
 Without forecasting, these challenges can lead to increased costs and reduced customer satisfaction.
 
 
