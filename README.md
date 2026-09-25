@@ -36,6 +36,20 @@ UI/UX prototype designed using **Balsamiq Wireframes**.
 The prototype focuses on the customer ordering journey, from browsing the
 coffee shop menu to placing and tracking an order.
 
+---
+
+ ## 🎥 UI/UX Prototype Demo
+
+A video walkthrough demonstrating the Coffee Shop Customer Ordering System UI/UX prototype and the complete customer ordering flow.
+
+▶️ **[Watch the UI/UX Prototype Demo on Google Drive](https://drive.google.com/file/d/1VFxhYApmG_H8Edv6c0TttdLfJUiCxrF_/view?usp=sharing)**
+## 🎥 UI/UX Prototype Demo
+
+A short walkthrough demonstrating the Coffee Shop Management System UI/UX
+prototype and customer ordering flow.
+
+[▶️ Watch the UI/UX Prototype Demo](YOUR_VIDEO_LINK)
+
 ### 📱 Main Screens
 
 The prototype includes:
