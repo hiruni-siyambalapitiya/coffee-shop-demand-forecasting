@@ -111,9 +111,8 @@ Without forecasting, these challenges can lead to increased costs and reduced cu
 ## 🏗️ System Architecture
 
 <p align="center">
-<img src="diagrams/system diagram.png" width="900">
+  <img src="diagrams/system-diagram.png" width="900" alt="System Architecture Diagram">
 </p>
-
 ## 🔄 Project Workflow
 
 <p align="center">
